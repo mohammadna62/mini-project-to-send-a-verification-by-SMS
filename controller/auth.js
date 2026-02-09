@@ -1,8 +1,11 @@
 const request = require("request");
+const otpModel = require("./../models/otp");
 require("dotenv");
 module.exports.sendOtp = async (req, res) => {
   const { phone } = req.body;
   const code = Math.floor(Math.random() * 99999);
+  const now = new Date();
+  const expireAt = now.getTime() + 300_000;
   console.log("OTP Code ->", code);
 
   try {
@@ -20,7 +23,7 @@ module.exports.sendOtp = async (req, res) => {
         },
         json: true,
       },
-      function (error, response, body) {
+      async function (error, response, body) {
         console.log(response.body);
         if (!error && response.statusCode === 200) {
           //YOU‌ CAN‌ CHECK‌ THE‌ RESPONSE‌ AND SEE‌ ERROR‌ OR‌ SUCCESS‌ MESSAGE
@@ -31,8 +34,9 @@ module.exports.sendOtp = async (req, res) => {
           ) {
             return res.status(500).json({ message: response.body[1] });
           }
+          await otpModel.create({ phone, code, expireAt });
           return res
-            .status(200)
+            .status(201)
             .json({ message: "OTP Code Send Successfully" });
         } else {
           console.log("whatever you want");

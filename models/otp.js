@@ -22,4 +22,4 @@ uses : {
 
 
 const model = mongoose.model("Otp", schema)
-modeule.exports = model
+module.exports = model

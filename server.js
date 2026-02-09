@@ -1,12 +1,18 @@
 const express = require("express");
 const configSwagger = require("./configs/swagger");
 const authRouter = require("./routes/auth")
+const mongoose = require("mongoose")
 require('dotenv').config()
 
 // الگو
 
 const app = express();
 configSwagger(app);
+(async()=>{
+  await mongoose.connect("mongodb://localhost:27017/node-sms")
+  console.log("Mongo DB Connected Successfully");
+  
+})()
 app.use(express.json());
 app.use("/auth",authRouter)
 
