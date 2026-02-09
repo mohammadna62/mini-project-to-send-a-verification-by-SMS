@@ -5,7 +5,6 @@ module.exports.sendOtp = async (req, res) => {
   const code = Math.floor(Math.random() * 99999);
   console.log("OTP Code ->", code);
 
-
   try {
     request.post(
       {
@@ -22,14 +21,23 @@ module.exports.sendOtp = async (req, res) => {
         json: true,
       },
       function (error, response, body) {
+        console.log(response.body);
         if (!error && response.statusCode === 200) {
           //YOU‌ CAN‌ CHECK‌ THE‌ RESPONSE‌ AND SEE‌ ERROR‌ OR‌ SUCCESS‌ MESSAGE
-          console.log(response.body);
+          console.log(response.body[0]);
+          if (
+            typeof response.body !== "number" &&
+            Number(response.body[0]) !== 0
+          ) {
+            return res.status(500).json({ message: response.body[1] });
+          }
+          return res
+            .status(200)
+            .json({ message: "OTP Code Send Successfully" });
         } else {
           console.log("whatever you want");
         }
       },
     );
-    return res.status(200).json({ message: "OTP Code Send Successfully" });
   } catch (err) {}
 };
