@@ -1,11 +1,14 @@
 const express = require("express");
 const configSwagger = require("./configs/swagger");
+const authRouter = require("./routes/auth")
+require('dotenv').config()
 
 // الگو
 
 const app = express();
 configSwagger(app);
 app.use(express.json());
+app.use("/auth",authRouter)
 
 /**
  * @swagger
