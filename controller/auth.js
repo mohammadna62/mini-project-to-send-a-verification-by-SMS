@@ -1,5 +1,7 @@
 const request = require("request");
 const otpModel = require("./../models/otp");
+const authModel = require("./../models/otp")
+
 require("dotenv");
 module.exports.sendOtp = async (req, res) => {
   const { phone } = req.body;
@@ -24,10 +26,9 @@ module.exports.sendOtp = async (req, res) => {
         json: true,
       },
       async function (error, response, body) {
-        console.log(response.body);
         if (!error && response.statusCode === 200) {
           //YOU‌ CAN‌ CHECK‌ THE‌ RESPONSE‌ AND SEE‌ ERROR‌ OR‌ SUCCESS‌ MESSAGE
-          console.log(response.body[0]);
+
           if (
             typeof response.body !== "number" &&
             Number(response.body[0]) !== 0
@@ -44,4 +45,25 @@ module.exports.sendOtp = async (req, res) => {
       },
     );
   } catch (err) {}
+};
+module.exports.verifyOtp = async (req, res) => {
+  const { code, phone } = req.body;
+  const otp = await authModel.findOneAndUpdate(
+    { code, phone },
+    {$inc:{
+      uses:1,
+    }}
+  );
+  if (!otp) {
+    return res.status(409).json({ message: " Code is not Correct" });
+  }
+  if (otp.uses > 4) {
+    return res.status(408).json({ message: " Code is Maximum Use !!" });
+  }
+  const date = new Date();
+  const now = date.getTime();
+  if (otp.expireAt < now) {
+    return res.status(410).json({ message: " Code is Expiered" });
+  }
+  return res.status(200).json({ message: "Code is Correct" });
 };
